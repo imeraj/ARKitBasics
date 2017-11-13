@@ -10,11 +10,17 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIGestureRecognizerDelegate {
     @IBOutlet var sceneView: ARSCNView!
     var planes = [UUID : VirtualPlane]()
   
     var lampNode: SCNNode?
+    var candleNode: SCNNode?
+  
+    var currentNode: SCNNode?
+    var currentAngle: Float = 0.0
+  
+    var currentPlane: VirtualPlane?
   
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,7 +29,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       
         // Set the view's delegate
         sceneView.delegate = self
-    //  sceneView.debugOptions = [.showConstraints, .showLightExtents, ARSCNDebugOptions.showFeaturePoints,   ARSCNDebugOptions.showWorldOrigin]
+        //  sceneView.debugOptions = [.showConstraints, .showLightExtents, ARSCNDebugOptions.showFeaturePoints,   ARSCNDebugOptions.showWorldOrigin]
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
@@ -43,15 +49,99 @@ class ViewController: UIViewController, ARSCNViewDelegate {
          */
         UIApplication.shared.isIdleTimerDisabled = true
         setUpScenesAndNodes()
+      
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap(_:)))
+        tapGesture.numberOfTapsRequired = 2
+        sceneView.addGestureRecognizer(tapGesture)
+      
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        longPressGesture.minimumPressDuration = 1.0
+        sceneView.addGestureRecognizer(longPressGesture)
+      
+//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(didPan(_:)))
+//        sceneView.addGestureRecognizer(panGesture)
     }
   
-    @objc func didEnterbackground() {
+//    @objc
+//    func didPan(_ gesture : UIPanGestureRecognizer) {
+//      let location = gesture.location(in: sceneView)
+//      let translation = gesture.translation(in: gesture.view!)
+//
+//      let hitResults = sceneView.hitTest(location, options: nil)
+//      if hitResults.count > 0 {
+//        let result = hitResults.first
+//        currentNode = result?.node
+//      }
+//
+//      var newAngle = (Float) (translation.x) * (Float)(Double.pi)/180.0
+//      newAngle += currentAngle
+//
+//      if let currentNode = currentNode {
+//        currentNode.transform = SCNMatrix4MakeRotation(newAngle, 0, 1, 0)
+//
+//        if(gesture.state == UIGestureRecognizerState.ended) {
+//          currentAngle = newAngle
+//        }
+//      }
+//    }
+  
+    @objc
+    func didTap(_ gesture: UITapGestureRecognizer) {
+      print("Tap gesture")
+      let location = gesture.location(in: sceneView)
+      
+      let hitResults = sceneView.hitTest(location, options: nil)
+      
+      if hitResults.count > 0 {
+        let result = hitResults.first
+        
+        guard let data = result else { return }
+        
+        let position = data.node.parent!.position
+        _ = result?.node.parent?.enumerateHierarchy({ (node, _) in
+          node.removeFromParentNode()
+        })
+        
+        let newCandleNode = candleNode?.clone()
+        if let newCandleNode = newCandleNode {
+          newCandleNode.position = position
+          sceneView.scene.rootNode.addChildNode(newCandleNode)
+        }
+      }
+    }
+  
+    @objc
+    func didLongPress(_ gesture: UITapGestureRecognizer) {
+      if gesture.state == .recognized {
+        print("Long Press gesture")
+        let location = gesture.location(in: sceneView)
+    
+        let hitResults = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
+        if hitResults.count > 0 {
+          let result: ARHitTestResult = hitResults.first!
+      
+          let newLocation = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
+      
+          let newLampNode = lampNode?.clone()
+          if let newLampNode = newLampNode {
+              newLampNode.position = newLocation
+              sceneView.scene.rootNode.addChildNode(newLampNode)
+          }
+        }
+      }
+    }
+    
+    @objc
+    func didEnterbackground() {
       resetTracking()
     }
   
     func setUpScenesAndNodes() {
-      let tempScene = SCNScene(named: "art.scnassets/vase/vase.scn")!
-      lampNode = tempScene.rootNode.childNode(withName: "vase", recursively: true)!
+      let tempScene1 = SCNScene(named: "art.scnassets/vase/vase.scn")!
+      lampNode = tempScene1.rootNode.childNode(withName: "vase", recursively: true)!
+      
+      let tempScene2 = SCNScene(named: "art.scnassets/candle/candle.scn")!
+      candleNode = tempScene2.rootNode.childNode(withName: "candle", recursively: true)!
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,9 +170,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // MARK: - ARSCNViewDelegate
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
       if let arPlaneAnchor = anchor as? ARPlaneAnchor {
-        let plane = VirtualPlane(anchor: arPlaneAnchor)
-        self.planes[arPlaneAnchor.identifier] = plane
-        node.addChildNode(plane)
+        currentPlane = VirtualPlane(anchor: arPlaneAnchor)
+        self.planes[arPlaneAnchor.identifier] = currentPlane!
+        node.addChildNode(currentPlane!)
       }
     }
   
@@ -95,24 +185,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
       if let arPlaneAcnhor = anchor as? ARPlaneAnchor, let index = planes.index(forKey: arPlaneAcnhor.identifier) {
         planes.remove(at: index)
-      }
-    }
-  
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-      let touch = touches.first!
-      let location = touch.preciseLocation(in: sceneView)
-      
-      let hitResults = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
-      if hitResults.count > 0 {
-        let result: ARHitTestResult = hitResults.first!
-        
-        let newLocation = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
-        
-        let newLampNode = lampNode?.clone()
-        if let newLampNode = newLampNode {
-          newLampNode.position = newLocation
-          sceneView.scene.rootNode.addChildNode(newLampNode)
-        }
       }
     }
 
@@ -137,12 +209,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       sceneView.scene.rootNode.enumerateChildNodes { (node, _) in
         node.removeFromParentNode()
       }
+      
       let configuration = ARWorldTrackingConfiguration()
       configuration.planeDetection = .horizontal
       sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
   
-  deinit {
-    NotificationCenter.default.removeObserver(self)
-  }
+    deinit {
+      NotificationCenter.default.removeObserver(self)
+    }
 }
