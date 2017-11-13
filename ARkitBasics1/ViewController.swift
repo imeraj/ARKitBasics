@@ -14,7 +14,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIGestureRecognizerDe
     @IBOutlet var sceneView: ARSCNView!
     var planes = [UUID : VirtualPlane]()
   
-    var lampNode: SCNNode?
+    var vaseNode: SCNNode?
     var candleNode: SCNNode?
   
     var currentNode: SCNNode?
@@ -122,7 +122,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIGestureRecognizerDe
       
           let newLocation = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
       
-          let newLampNode = lampNode?.clone()
+          let newLampNode = vaseNode?.clone()
           if let newLampNode = newLampNode {
               newLampNode.position = newLocation
               sceneView.scene.rootNode.addChildNode(newLampNode)
@@ -138,7 +138,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIGestureRecognizerDe
   
     func setUpScenesAndNodes() {
       let tempScene1 = SCNScene(named: "art.scnassets/vase/vase.scn")!
-      lampNode = tempScene1.rootNode.childNode(withName: "vase", recursively: true)!
+      vaseNode = tempScene1.rootNode.childNode(withName: "vase", recursively: true)!
       
       let tempScene2 = SCNScene(named: "art.scnassets/candle/candle.scn")!
       candleNode = tempScene2.rootNode.childNode(withName: "candle", recursively: true)!
