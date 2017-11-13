@@ -122,10 +122,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIGestureRecognizerDe
       
           let newLocation = SCNVector3Make(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
       
-          let newLampNode = vaseNode?.clone()
-          if let newLampNode = newLampNode {
-              newLampNode.position = newLocation
-              sceneView.scene.rootNode.addChildNode(newLampNode)
+          let newVaseNode = vaseNode?.clone()
+          if let newVaseNode = newVaseNode {
+              newVaseNode.position = newLocation
+              sceneView.scene.rootNode.addChildNode(newVaseNode)
           }
         }
       }
