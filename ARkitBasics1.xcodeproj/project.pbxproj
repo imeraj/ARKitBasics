@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		581000F71FBAAA5000370F2E /* SCNVector3+extenstion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581000F61FBAAA5000370F2E /* SCNVector3+extenstion.swift */; };
 		584049931FB2CE570049B987 /* VirtualPlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584049921FB2CE570049B987 /* VirtualPlane.swift */; };
 		587A59721FB2AEB200F29C48 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A59711FB2AEB200F29C48 /* AppDelegate.swift */; };
 		587A59741FB2AEB200F29C48 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 587A59731FB2AEB200F29C48 /* art.scnassets */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		581000F61FBAAA5000370F2E /* SCNVector3+extenstion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCNVector3+extenstion.swift"; sourceTree = "<group>"; };
 		584049921FB2CE570049B987 /* VirtualPlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualPlane.swift; sourceTree = "<group>"; };
 		587A596E1FB2AEB200F29C48 /* ARkitBasics1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARkitBasics1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		587A59711FB2AEB200F29C48 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 		587A59701FB2AEB200F29C48 /* ARkitBasics1 */ = {
 			isa = PBXGroup;
 			children = (
+				581000F61FBAAA5000370F2E /* SCNVector3+extenstion.swift */,
 				587A59711FB2AEB200F29C48 /* AppDelegate.swift */,
 				587A59751FB2AEB200F29C48 /* ViewController.swift */,
 				584049921FB2CE570049B987 /* VirtualPlane.swift */,
@@ -143,6 +146,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				581000F71FBAAA5000370F2E /* SCNVector3+extenstion.swift in Sources */,
 				587A59761FB2AEB200F29C48 /* ViewController.swift in Sources */,
 				584049931FB2CE570049B987 /* VirtualPlane.swift in Sources */,
 				587A59721FB2AEB200F29C48 /* AppDelegate.swift in Sources */,
